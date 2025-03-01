@@ -77,11 +77,7 @@ export const login = async (req: Request, res: Response) => {
       return;
     }
 
-    console.log(user);
-
     const passwordMatch = await bcrypt.compare(password, user.password);
-
-    console.log(passwordMatch);
 
     if (!passwordMatch) {
       res.status(400).json({ message: "Неверный email или пароль" });
@@ -89,7 +85,6 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const token = generateToken(user._id);
-    console.log(token);
 
     res.status(200).json({ token });
   } catch (error) {
