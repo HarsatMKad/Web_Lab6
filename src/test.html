@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Upload Course</title>
+  </head>
+  <body>
+    <h1>Create Course</h1>
+    <form
+      action="http://localhost:3000/api/courses"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <label for="title">Title:</label><br />
+      <input type="text" id="title" name="title" /><br /><br />
+
+      <label for="description">Description:</label><br />
+      <textarea id="description" name="description"></textarea><br /><br />
+
+      <label for="price">Price:</label><br />
+      <input type="number" id="price" name="price" /><br /><br />
+
+      <label for="category">Category:</label><br />
+      <input type="text" id="category" name="category" /><br /><br />
+
+      <label for="level">level:</label><br />
+      <input type="text" id="level" name="level" value="beginner" /><br /><br />
+
+      <label for="published">published:</label><br />
+      <input
+        type="text"
+        id="published"
+        name="published"
+        value="false"
+      /><br /><br />
+
+      <label for="author">author:</label><br />
+      <input type="text" id="author" name="author" /><br /><br />
+
+      <label for="image">Image:</label><br />
+      <input type="file" id="image" name="image" /><br /><br />
+
+      <input type="submit" value="Create Course" />
+    </form>
+  </body>
+</html>
