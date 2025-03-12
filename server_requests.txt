@@ -1,0 +1,108 @@
+  **Тестирование API:**  
+
+    ### Пользователи
+    *   GET `api/users/` - получить список пользователей.
+          - **header:**
+            ``` authToken: jwt-токен ```
+    *   GET `api/users/info:id` - получить информацию одного пользователя.
+          - **header:**
+            ``` authToken: jwt-токен ```
+    *   POST `api/users/` - создать любого пользователя.
+         - **Тело запроса (JSON):**            
+            ```json
+            {
+              "name": "имя",
+              "lastname": "фамилия",
+              "email": "example@email.com",
+              "password": "пароль",
+              "role": "роль"
+            }
+            ```
+    *   DELETE `api/users/:id` - удаление пользователя.
+          - **header:**
+            ``` authToken: jwt-токен ```
+    *   PUT `api/users/:id` - обновить пользователя.
+          - **header:**
+            ``` authToken: jwt-токен ```
+         - **Тело запроса (JSON):**            
+            ```json
+            {
+              "name": "имя",
+              "lastname": "фамилия",
+              "email": "example@email.com",
+              "password": "пароль",
+              "role": "роль"
+            }
+            ```
+    *   POST `api/users/login` - авторизация пользователя.
+         - **Тело запроса (JSON):**            
+            ```json
+            {
+              "email": "example@email.com",
+              "password": "пароль"
+            }
+            ```
+    *   PUT `api/users/register/student` - регистрация пользователя студента.
+         - **Тело запроса (JSON):**            
+            ```json
+            {
+              "name": "имя",
+              "lastname": "фамилия",
+              "email": "example@email.com",
+              "password": "пароль"
+            }
+            ```
+    *   PUT `api/users/register/teacher` - регистрация пользователя преподавателя.
+         - **Тело запроса (JSON):**            
+            ```json
+            {
+              "name": "имя",
+              "lastname": "фамилия",
+              "email": "example@email.com",
+              "password": "пароль"
+            }
+            ```
+
+    ### Курсы
+    *   GET `api/courses/` - получить список курсов.
+         - **Тело запроса (JSON):**            
+            ```json
+            {
+              "search": "поиск по названию, опционально",
+              "category": "фильтрация по категории курса, опционально",
+              "level": "фильтрация по уровню курса, опционально",
+              "sort": "поле, по которому производится сортировка, опционально",
+              "page": "номер страницы, опционально",
+              "limit": "длина страницы, опционально"
+            }
+            ```
+    *   GET `api/courses/:id` - найти курс по id.
+    *   POST `api/courses/` - создать курс.
+         - **Тело запроса (JSON):**            
+            ```json
+            {
+              "title": "название",
+              "description": "описание",
+              "price": "цена",
+              "category": "категория",
+              "level": "уровень",
+              "publiched": "опубликовано",
+              "aythor": "автор",
+              "tags": "массив тегов",
+            }
+            ```
+    *   DELETE `api/courses/:id` - удалить курс.
+    *   PUT `api/courses/:id` - обновить курс.
+         - **Тело запроса (JSON):**            
+            ```json
+            {
+              "title": "название",
+              "description": "описание",
+              "price": "цена",
+              "category": "категория",
+              "level": "уровень",
+              "publiched": "опубликовано",
+              "aythor": "автор",
+              "tags": "массив тегов",
+            }
+            ```
