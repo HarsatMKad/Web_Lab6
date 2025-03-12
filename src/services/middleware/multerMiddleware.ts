@@ -2,6 +2,7 @@ import multer from "multer";
 import sharp from "sharp";
 import path from "path";
 import { NextFunction, Request, Response } from "express";
+import {v4 as uuidv4} from 'uuid';
 
 const storageDirectory = "uploads";
 const WATERMARK_PATH = "wtrm.jpg";
@@ -33,8 +34,8 @@ export const processImage = async (
       return next(); 
     }
 
-    const originalFilename = req.file.originalname;
-    const filename = `${Date.now()}-${originalFilename}`;
+    //const originalFilename = req.file.originalname;
+    const filename = uuidv4()+".jpg";
     const imagePath = path.join(storageDirectory, filename);
 
     await sharp(req.file.buffer)

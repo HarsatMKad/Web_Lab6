@@ -16,7 +16,7 @@ export const getUsers = async (req: Request, res: Response) => {
 
 export const getUserInfo = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
+    const id  = req.params.id;
 
     const user = await Users.findById(id);
 
@@ -37,7 +37,6 @@ export const createUser = async (req: Request, res: Response) => {
     const { name, lastname, mail, password, role } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log(hashedPassword);
 
     const newUsers = new Users({
       name,
@@ -60,7 +59,7 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
+    const id = req.params.id;
 
     const user = await Users.findById(id);
     if (!user) {
@@ -77,7 +76,9 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const { id, name, lastname, mail, password, role } = req.body;
+    const id = req.params.id;
+
+    const { name, lastname, mail, password, role } = req.body;
 
     const user = await Users.findById(id);
     if (!user) {

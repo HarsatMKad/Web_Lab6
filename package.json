@@ -3,6 +3,7 @@
     "@sindresorhus/slugify": "^2.2.1",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/uuid": "^10.0.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

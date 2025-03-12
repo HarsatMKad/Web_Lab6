@@ -12,11 +12,11 @@ import { registerStudent, registerTeacher, login } from "../controllers/UserAuth
 const router = express.Router();
 
 router.get("/", authenticateToken, getUsers);
+router.get("/:id", authenticateToken, getUserInfo);
 router.post("/", createUser);
-router.delete("/", authenticateToken, deleteUser);
-router.put("/", authenticateToken, updateUser);
+router.delete("/:id", authenticateToken, deleteUser);
+router.put("/:id", authenticateToken, updateUser);
 
-router.get("/info", authenticateToken, getUserInfo);
 router.post("/login", login);
 router.post("/register/student", registerStudent);
 router.post("/register/teacher", registerTeacher);

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Course, { ICourse } from "../models/Course";
 import slugify from "slugify";
 import { FilterQuery } from "mongoose";
-import fs from "fs/promises";
+import fs from "fs";
 
 const storageDirectory = "uploads/";
 
@@ -34,7 +34,8 @@ export const getCourses = async (req: Request, res: Response) => {
     const courseList = await Course.find(filter)
       .sort(sort)
       .skip(skip)
-      .limit(limitNumber);
+      .limit(limitNumber)
+      .populate("tags");
 
     res.json(courseList);
   } catch (error) {
@@ -45,9 +46,9 @@ export const getCourses = async (req: Request, res: Response) => {
 
 export const getCourseById = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
+    const id = req.params.id;
 
-    const course = await Course.findById(id);
+    const course = await Course.findById(id).populate("tags");
 
     if (!course) {
       res.status(404).json({ message: "Курс не найден" });
@@ -83,6 +84,7 @@ export const createCourse = async (req: Request, res: Response) => {
       level,
       published,
       author,
+      tags: ["67d197e761d7392226c032c6"],
     });
     await newCourse.save();
 
@@ -95,7 +97,7 @@ export const createCourse = async (req: Request, res: Response) => {
 
     if (req.body.image) {
       try {
-        await fs.unlink(storageDirectory + req.body.image);
+        await fs.unlinkSync(storageDirectory + req.body.image);
       } catch (unlinkError) {
         console.error("Ошибка при удалении загруженного файла:", unlinkError);
       }
@@ -107,7 +109,7 @@ export const createCourse = async (req: Request, res: Response) => {
 
 export const deleteCourse = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
+    const id = req.params.id;
 
     const course = await Course.findById(id);
     if (!course) {
@@ -124,8 +126,9 @@ export const deleteCourse = async (req: Request, res: Response) => {
 
 export const updateCourse = async (req: Request, res: Response) => {
   try {
+    const id = req.params.id;
+
     const {
-      id,
       title,
       description,
       price,

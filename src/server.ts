@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import app from "./app";
 import "dotenv/config";
 
-const port = process.env.PORT;
-const dbUrl = process.env.MONGO_URL;
+const port = process.env.PORT || 3000;
+const dbUrl = process.env.MONGO_URL || "mongodb://localhost:27017";
 
 const start = async () => {
   try {

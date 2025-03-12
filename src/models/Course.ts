@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { Types } from "mongoose";
 
 interface ICourse {
   _id: string;
@@ -12,9 +13,10 @@ interface ICourse {
   published: boolean;
   author: string;
   createdAt: number;
+  tags: Types.ObjectId[];
 }
 
-const CourseSchema: Schema = new Schema<ICourse>({
+const courseSchema: Schema = new Schema<ICourse>({
   title: {
     type: String,
     required: true,
@@ -56,11 +58,17 @@ const CourseSchema: Schema = new Schema<ICourse>({
   createdAt: {
     type: Number,
     required: true,
-    default: Date.now
+    default: Date.now,
   },
+  tags: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Tags",
+    },
+  ],
 });
 
-const Course = model<ICourse>("Courses", CourseSchema);
+const Course = model<ICourse>("Courses", courseSchema);
 
 export default Course;
-export { ICourse }
+export { ICourse };
