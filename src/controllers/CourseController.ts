@@ -137,6 +137,7 @@ export const updateCourse = async (req: Request, res: Response) => {
       level,
       published,
       author,
+      tags
     } = req.body;
 
     const course = await Course.findById(id);
@@ -155,6 +156,7 @@ export const updateCourse = async (req: Request, res: Response) => {
       level,
       published,
       author,
+      tags,
     });
     res.status(200).json({ message: "Курс успешно обновлен" });
   } catch (error) {
