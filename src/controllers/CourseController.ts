@@ -69,7 +69,7 @@ export const createCourse = async (req: Request, res: Response) => {
       return;
     }
 
-    const { title, description, price, category, level, published, author } =
+    const { title, description, price, category, level, published, author, tags } =
       req.body;
 
     const imagePath = req.body.image;
@@ -84,7 +84,7 @@ export const createCourse = async (req: Request, res: Response) => {
       level,
       published,
       author,
-      tags: ["67d197e761d7392226c032c6"],
+      tags,
     });
     await newCourse.save();
 
