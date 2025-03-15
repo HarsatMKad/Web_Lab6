@@ -16,7 +16,14 @@ export const getUsers = async (req: Request, res: Response) => {
 
 export const getUserInfo = async (req: Request, res: Response) => {
   try {
-    const id  = req.params.id;
+
+    const userId = req.params.userId;
+    const id  = req.body.id;
+
+    if(userId != id){
+      res.status(405).json({ message: "id пользователя не совпадает" });
+      return;
+    }
 
     const user = await Users.findById(id);
 
@@ -59,7 +66,13 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
+    const userId = req.params.userId;
+    const id  = req.body.id;
+
+    if(userId != id){
+      res.status(405).json({ message: "id пользователя не совпадает" });
+      return;
+    }
 
     const user = await Users.findById(id);
     if (!user) {
@@ -76,9 +89,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
-
-    const { name, lastname, mail, password, role } = req.body;
+    const { id, name, lastname, mail, password, role } = req.body;
 
     const user = await Users.findById(id);
     if (!user) {
