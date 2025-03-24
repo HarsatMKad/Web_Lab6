@@ -5,7 +5,7 @@ interface IFeaturedCourses {
   user_id: Types.ObjectId;
   course_id: Types.ObjectId;
 }
-
+ 
 const featuredCoursesSchema: Schema = new Schema<IFeaturedCourses>({
   user_id: {
     type: Schema.Types.ObjectId,
