@@ -1,9 +1,9 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
 
 interface IFeaturedCourses {
   _id: string;
-  user_id: Types.ObjectId;
-  course_id: Types.ObjectId;
+  user_id: Schema.Types.ObjectId;
+  course_id: Schema.Types.ObjectId;
 }
  
 const featuredCoursesSchema: Schema = new Schema<IFeaturedCourses>({

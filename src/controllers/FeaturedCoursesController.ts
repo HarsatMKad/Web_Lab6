@@ -32,8 +32,9 @@ export const getFeaturedCourses = async (req: Request, res: Response) => {
 
 export const createFeaturedCourses = async (req: Request, res: Response) => {
   try {
-    const { user_id, course_id } = req.body;
-
+    const { id, course_id } = req.body;
+    const user_id = id;
+    
     const newFeaturedCourse = new FeaturedCourses({
       user_id,
       course_id,

@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-import { Types } from "mongoose";
 
 interface ICourse {
   _id: string;
@@ -13,7 +12,7 @@ interface ICourse {
   published: boolean;
   author: string;
   createdAt: number;
-  tags: Types.ObjectId[];
+  tags: Schema.Types.ObjectId[];
 }
 
 const courseSchema: Schema = new Schema<ICourse>({

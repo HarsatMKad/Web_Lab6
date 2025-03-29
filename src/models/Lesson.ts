@@ -1,11 +1,11 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
 
 interface ILesson {
   _id: string;
   title: string;
   content: string;
   videoUrl: string;
-  course: Types.ObjectId;
+  course: Schema.Types.ObjectId;
   order: number;
   createdAt: number;
 }

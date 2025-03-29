@@ -6,7 +6,7 @@ interface IUser {
   lastname: string;
   mail: string;
   password: string;
-  role: number;
+  role: string;
 }
 
 interface IUserMethods {
@@ -34,7 +34,7 @@ const userSchema: Schema = new Schema<IUser, UserModel, IUserMethods>({
     required: true,
   },
   role: {
-    type: Number,
+    type: String,
     required: true,
   },
 });

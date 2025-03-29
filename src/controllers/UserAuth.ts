@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { generateToken } from "../services/authService";
 import User from "../models/User";
 import bcrypt from "bcrypt";
+import { teacher, student } from "../utils/roles";
 
 export const registerStudent = async (req: Request, res: Response) => {
   try {
@@ -19,7 +20,7 @@ export const registerStudent = async (req: Request, res: Response) => {
       lastname,
       mail,
       password: hashedPassword,
-      role: 1,
+      role: student,
     });
     await newStudent.save();
 
@@ -51,7 +52,7 @@ export const registerTeacher = async (req: Request, res: Response) => {
       lastname,
       mail,
       password: hashedPassword,
-      role: 2,
+      role: teacher,
     });
     await newStudent.save();
 

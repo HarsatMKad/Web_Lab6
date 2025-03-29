@@ -1,9 +1,9 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
 
 interface IComment {
   _id: string;
-  user: Types.ObjectId;
-  lesson: Types.ObjectId;
+  user: Schema.Types.ObjectId;
+  lesson: Schema.Types.ObjectId;
   text: string;
 }
 
