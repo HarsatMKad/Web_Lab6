@@ -1,26 +1,28 @@
-import { Request, Response, NextFunction } from "express";
-import Users from "../../models/User";
+import { Request, Response, NextFunction } from 'express';
+import Users from '../../models/User';
+
+interface AuthRequest extends Request {
+	user?: { id: string };
+}
 
 export default function checkRole(role: string[]) {
-    return async (req: Request, res: Response, next: NextFunction) => {
-        const userId = req.body.id
-        
-        if(!userId){
-            res.status(401).json({message:"Отказано, не обнаружено id пользователя."})
-        }
+	return async (req: AuthRequest, res: Response, next: NextFunction) => {
+		if (!req.user) {
+			res.status(401).json({ message: 'Пользовтель не зарегистрирован.' });
+			return;
+		}
 
-        const user = await Users.findById(userId);
+		const userId = req.user.id;
+		const user = await Users.findById(userId);
 
-        if(!user){
-            res.status(404).json({ message: "Пользователь не найден" });
-        }
+		if (!user) {
+			res.status(404).json({ message: 'Пользователь не найден' });
+		}
 
-        console.log(user)
-
-        if(role.includes(user!.role)){
-            next();
-        } else {
-            res.status(403).json({message:"Отказано, несоответствующая роль."})
-        }
-    }
+		if (role.includes(user!.role)) {
+			next();
+		} else {
+			res.status(403).json({ message: 'Отказано, несоответствующая роль.' });
+		}
+	};
 }

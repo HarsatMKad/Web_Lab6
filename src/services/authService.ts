@@ -1,11 +1,10 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import config from '../utils/config';
 
-const JWT_EXPIRES_IN = "1h";
+const JWT_EXPIRES_IN = '1h';
 
-const jwt_key = process.env.JWT_KEY || "secret-key"
-
-export const generateToken = (userId: string) => {
-  return jwt.sign({ userId }, jwt_key, {
-    expiresIn: JWT_EXPIRES_IN,
-  });
+export const generateToken = (id: string) => {
+	return jwt.sign({ id }, config.jwtKey, {
+		expiresIn: JWT_EXPIRES_IN,
+	});
 };
