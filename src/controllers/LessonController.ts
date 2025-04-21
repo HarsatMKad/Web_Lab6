@@ -1,65 +1,60 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import Lesson from '../models/Lesson';
 
-export const createLessons = async (req: Request, res: Response) => {
+export const createLessons = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { title, content, videoUrl, course, order } = req.body;
 
-		const newLesson = new Lesson({
+		const lesson = new Lesson({
 			title,
 			content,
 			videoUrl,
 			course,
 			order,
 		});
-		await newLesson.save();
+		await lesson.save();
 
 		res.status(201).json({
 			message: 'Урок успешно создан',
-			tag: newLesson,
+			lesson,
 		});
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при создании урока' });
+		next({ error, message: 'Ошибка при создании урока' });
 	}
 };
 
-export const getLessons = async (req: Request, res: Response) => {
+export const getLessons = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const lessonList = await Lesson.find().populate('course');
-		res.json(lessonList);
+		res.json({ message: 'Список уроков получен', lessonList });
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при получении списка уроков' });
+		next({ error, message: 'Ошибка при получении списка уроков' });
 	}
 };
 
-export const updateLessons = async (req: Request, res: Response) => {
+export const updateLessons = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { id, title, content, videoUrl, course, order } = req.body;
+		const { id } = req.params;
 
-		const lesson = await Lesson.findById(id);
+		const lesson = await Lesson.findByIdAndUpdate(id, req.body, {
+			new: true,
+			runValidators: true,
+		});
+
 		if (!lesson) {
 			res.status(404).json({ message: 'Урок не найден' });
 			return;
 		}
 
-		await Lesson.findByIdAndUpdate(id, {
-			title,
-			content,
-			videoUrl,
-			course,
-			order,
-		});
-		res.status(200).json({ message: 'Урок успешно обновлен' });
+		res.status(200).json({ message: 'Урок успешно обновлен', lesson });
 	} catch (error) {
-		res.status(500).json({ message: error });
+		next({ error, message: 'Ошибка при обновлении урока' });
 	}
 };
 
-export const deleteLessons = async (req: Request, res: Response) => {
+export const deleteLessons = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const id = req.params.id;
+		const { id } = req.params;
 
 		const lesson = await Lesson.findById(id);
 		if (!lesson) {
@@ -68,9 +63,8 @@ export const deleteLessons = async (req: Request, res: Response) => {
 		}
 
 		await Lesson.findByIdAndDelete(id);
-		res.status(200).json({ message: 'Урок успешно удален' });
+		res.status(200).json({ message: 'Урок успешно удален', lesson });
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при удалении урока' });
+		next({ error, message: 'Ошибка при удалении урока' });
 	}
 };

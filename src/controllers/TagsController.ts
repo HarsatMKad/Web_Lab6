@@ -1,18 +1,17 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import Tag from '../models/Tags';
 import slugify from 'slugify';
 
-export const getTags = async (req: Request, res: Response) => {
+export const getTags = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const tagsList = await Tag.find();
 		res.json(tagsList);
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при получении списка тегов' });
+		next({ error, message: 'Ошибка при получении списка тегов' });
 	}
 };
 
-export const createTags = async (req: Request, res: Response) => {
+export const createTags = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { name, description } = req.body;
 
@@ -28,12 +27,11 @@ export const createTags = async (req: Request, res: Response) => {
 			tag: newTag,
 		});
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при получении списка тегов' });
+		next({ error, message: 'Ошибка при создании тега' });
 	}
 };
 
-export const deleteTags = async (req: Request, res: Response) => {
+export const deleteTags = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const id = req.params.id;
 
@@ -44,9 +42,8 @@ export const deleteTags = async (req: Request, res: Response) => {
 		}
 
 		await Tag.findByIdAndDelete(id);
-		res.status(200).json({ message: 'Тег успешно удален' });
+		res.status(200).json({ message: 'Тег успешно удален', tag });
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при получении списка тегов' });
+		next({ error, message: 'Ошибка при удалении тега' });
 	}
 };

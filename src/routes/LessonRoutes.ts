@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post('/', authenticateToken, checkRole([teacher]), createLessons);
 router.get('/', getLessons);
-router.put('/', authenticateToken, checkRole([teacher]), updateLessons);
+router.put('/:id', authenticateToken, checkRole([teacher]), updateLessons);
 router.delete('/:id', authenticateToken, checkRole([teacher, admin]), deleteLessons);
 
 export default router;

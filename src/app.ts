@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import config from './utils/config';
 import userRouter from './routes/UserRoutes';
 import courseRouter from './routes/CourseRoutes';
@@ -8,24 +8,23 @@ import lessonRouter from './routes/LessonRoutes';
 import commentRouter from './routes/CommentRoutes';
 import enrollmentRoutes from './routes/EnrollmentRoutes';
 import { authenticateToken } from './services/middleware/authMiddleware';
+import { errorHandler } from './services/middleware/errorHandler';
 
 const app = express();
 const apiRouter = express.Router();
 
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
-	res.send('Hello from server!');
-});
-
 apiRouter.use('/users', userRouter);
 apiRouter.use('/courses', courseRouter);
-apiRouter.use('/tags', tagsRouter);
-apiRouter.use('/featuredCourses', featuredCoursesRouter);
+apiRouter.use('/tags', authenticateToken, tagsRouter);
+apiRouter.use('/featuredCourses', authenticateToken, featuredCoursesRouter);
 apiRouter.use('/lessons', lessonRouter);
 apiRouter.use('/comments', commentRouter);
 apiRouter.use('/enrollment', authenticateToken, enrollmentRoutes);
 
 app.use(config.apiVer, apiRouter);
+
+app.use(errorHandler);
 
 export default app;

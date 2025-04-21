@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import {
 	enrollUserInCourse,
 	completeLesson,
@@ -7,28 +7,48 @@ import {
 } from '../services/enrollmentService';
 import Enrollment from '../models/EnrollmentModel';
 import Lesson from '../models/Lesson';
+import Users from '../models/User';
+import Course from '../models/Course';
 
 interface AuthRequest extends Request {
 	user?: { id: string };
 }
 
-export const enrollUser = async (req: AuthRequest, res: Response) => {
+export const enrollUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
 	try {
 		if (!req.user) {
 			res.status(401).json({ message: 'Пользовтель не зарегистрирован.' });
 			return;
 		}
+
 		const userId = req.user.id;
 		const { courseId } = req.body;
+
+		const user = await Users.findById(userId);
+		const course = await Course.findById(courseId);
+
+		if (!user) {
+			res.status(404).json({ message: 'Пользователь не найден.' });
+			return;
+		}
+
+		if (!course) {
+			res.status(404).json({ message: 'Курс не найден.' });
+			return;
+		}
+
 		const enrollment = await enrollUserInCourse(userId, courseId);
-		res.status(201).json({ message: 'Пользователь записан на курс.', enrollment: enrollment });
+		res.status(201).json({ message: 'Пользователь записан на курс.', enrollment });
 	} catch (error) {
-		console.error(error);
-		res.status(400).json({ message: error });
+		next({ error, message: 'Ошибка при записи пользователя на курс' });
 	}
 };
 
-export const completeLessonController = async (req: AuthRequest, res: Response) => {
+export const completeLessonController = async (
+	req: AuthRequest,
+	res: Response,
+	next: NextFunction,
+) => {
 	try {
 		if (!req.user) {
 			res.status(401).json({ message: 'Пользовтель не зарегистрирован.' });
@@ -37,7 +57,13 @@ export const completeLessonController = async (req: AuthRequest, res: Response) 
 		const userId = req.user.id;
 		const { lessonId } = req.body;
 
+		const user = await Users.findById(userId);
 		const lesson = await Lesson.findById(lessonId);
+
+		if (!user) {
+			res.status(404).json({ message: 'Пользователь не найден.' });
+			return;
+		}
 
 		if (!lesson) {
 			res.status(404).json({ message: 'Урок не найден.' });
@@ -45,14 +71,17 @@ export const completeLessonController = async (req: AuthRequest, res: Response) 
 		}
 
 		const enrollment = await completeLesson(userId, lessonId);
-		res.status(201).json({ message: 'Урок завершен.', enrollment: enrollment });
+		res.status(201).json({ message: 'Урок завершен.', enrollment });
 	} catch (error) {
-		console.error(error);
-		res.status(400).json({ message: error });
+		next({ error, message: 'Ошибка при завершении урока' });
 	}
 };
 
-export const uncompleteLessonController = async (req: AuthRequest, res: Response) => {
+export const uncompleteLessonController = async (
+	req: AuthRequest,
+	res: Response,
+	next: NextFunction,
+) => {
 	try {
 		if (!req.user) {
 			res.status(401).json({ message: 'Пользовтель не зарегистрирован.' });
@@ -60,15 +89,32 @@ export const uncompleteLessonController = async (req: AuthRequest, res: Response
 		}
 		const userId = req.user.id;
 		const { lessonId } = req.body;
+
+		const user = await Users.findById(userId);
+		const lesson = await Lesson.findById(lessonId);
+
+		if (!user) {
+			res.status(404).json({ message: 'Пользователь не найден.' });
+			return;
+		}
+
+		if (!lesson) {
+			res.status(404).json({ message: 'Урок не найден.' });
+			return;
+		}
+
 		const enrollment = await uncompleteLesson(userId, lessonId);
-		res.status(201).json({ message: 'Урок отменен.', enrollment: enrollment });
+		res.status(201).json({ message: 'Урок отменен.', enrollment });
 	} catch (error) {
-		console.error(error);
-		res.status(400).json({ message: error });
+		next({ error, message: 'Ошибка при отмене урока' });
 	}
 };
 
-export const getEnrollmentStatusController = async (req: AuthRequest, res: Response) => {
+export const getEnrollmentStatusController = async (
+	req: AuthRequest,
+	res: Response,
+	next: NextFunction,
+) => {
 	try {
 		if (!req.user) {
 			res.status(401).json({ message: 'Пользовтель не зарегистрирован.' });
@@ -76,26 +122,47 @@ export const getEnrollmentStatusController = async (req: AuthRequest, res: Respo
 		}
 		const userId = req.user.id;
 		const { courseId } = req.body;
+
+		const user = await Users.findById(userId);
+		const course = await Course.findById(courseId);
+
+		if (!user) {
+			res.status(404).json({ message: 'Пользователь не найден.' });
+			return;
+		}
+
+		if (!course) {
+			res.status(404).json({ message: 'Курс не найден.' });
+			return;
+		}
+
 		const enrollment = await getEnrollmentStatus(userId, courseId);
+
 		if (enrollment) {
 			res.status(201).json({ message: enrollment });
 		} else {
 			res.status(404).json({ message: 'Пользователь не записан на курс.' });
 		}
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: error });
+		next({ error, message: 'Ошибка при получении статуса' });
 	}
 };
 
-export const getEnrolledStudents = async (req: Request, res: Response) => {
+export const getEnrolledStudents = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { courseId } = req.body;
+
+		const course = await Course.findById(courseId);
+
+		if (!course) {
+			res.status(404).json({ message: 'Курс не найден.' });
+			return;
+		}
+
 		const enrolledStudents = await Enrollment.find({ course: courseId }).populate('user');
 
-		res.status(201).json({ enrolledStudents });
+		res.status(201).json({message: "Список студентов, записанных на курс" , enrolledStudents });
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: error });
+		next({error, message: "Ошибка при получении списка студентов, записанных на курс"})
 	}
 };

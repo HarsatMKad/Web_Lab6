@@ -11,9 +11,9 @@ import { admin } from '../utils/roles';
 
 const router = express.Router();
 
-router.post('/', authenticateToken, createComment);
 router.get('/', getComments);
+router.post('/', authenticateToken, createComment);
 router.delete('/:id', authenticateToken, checkRole([admin]), deleteComment);
-router.put('/', authenticateToken, updateComments);
+router.put('/:id', authenticateToken, updateComments);
 
 export default router;

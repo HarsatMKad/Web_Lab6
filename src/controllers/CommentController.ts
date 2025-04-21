@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import Comment, { IComment } from '../models/Comment';
 import { FilterQuery } from 'mongoose';
 
@@ -6,7 +6,7 @@ interface AuthRequest extends Request {
 	user?: { id: string };
 }
 
-export const createComment = async (req: AuthRequest, res: Response) => {
+export const createComment = async (req: AuthRequest, res: Response, next: NextFunction) => {
 	try {
 		if (!req.user) {
 			res.status(401).json({ message: 'Пользовтель не зарегистрирован.' });
@@ -25,15 +25,14 @@ export const createComment = async (req: AuthRequest, res: Response) => {
 
 		res.status(201).json({
 			message: 'Комментарий успешно создан',
-			tag: newComment,
+			comment: newComment,
 		});
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при создании комментария' });
+		next({ error, message: 'Ошибка при создании комментария' });
 	}
 };
 
-export const getComments = async (req: Request, res: Response) => {
+export const getComments = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { lesson } = req.body;
 
@@ -44,35 +43,33 @@ export const getComments = async (req: Request, res: Response) => {
 		}
 
 		const commentsList = await Comment.find(filter).populate('lesson').populate('user');
-		res.json(commentsList);
+		res.json({ message: 'Список комментариев получен', commentsList });
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при получении списка комментариев' });
+		next({ error, message: 'Ошибка при получении списка комментариев' });
 	}
 };
 
-export const updateComments = async (req: Request, res: Response) => {
+export const updateComments = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { id, user, lesson, text } = req.body;
+		const { id } = req.params;
 
-		const comment = await Comment.findById(id);
+		const comment = await Comment.findByIdAndUpdate(id, req.body, {
+			new: true,
+			runValidators: true,
+		});
+
 		if (!comment) {
 			res.status(404).json({ message: 'Комментарий не найден' });
 			return;
 		}
 
-		await Comment.findByIdAndUpdate(id, {
-			user,
-			lesson,
-			text,
-		});
-		res.status(200).json({ message: 'Комментарий успешно обновлен' });
+		res.status(200).json({ message: 'Комментарий успешно обновлен', comment });
 	} catch (error) {
-		res.status(500).json({ message: error });
+		next({ error, message: 'Ошибка при обновлении комментария' });
 	}
 };
 
-export const deleteComment = async (req: Request, res: Response) => {
+export const deleteComment = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const id = req.params.id;
 
@@ -83,9 +80,8 @@ export const deleteComment = async (req: Request, res: Response) => {
 		}
 
 		await Comment.findByIdAndDelete(id);
-		res.status(200).json({ message: 'Комментарий успешно удален' });
+		res.status(200).json({ message: 'Комментарий успешно удален', comment });
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при удалении Комментария' });
+		next({ error, message: 'Ошибка при удалении Комментария' });
 	}
 };

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import Course, { ICourse } from '../models/Course';
 import slugify from 'slugify';
 import { FilterQuery } from 'mongoose';
@@ -6,7 +6,7 @@ import fs from 'fs';
 
 const storageDirectory = 'uploads/';
 
-export const getCourses = async (req: Request, res: Response) => {
+export const getCourses = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { search, category, level, sort, page, limit } = req.body;
 
@@ -37,14 +37,13 @@ export const getCourses = async (req: Request, res: Response) => {
 			.limit(limitNumber)
 			.populate('tags');
 
-		res.json(courseList);
+		res.json({ message: 'Получен список курсов', courseList });
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при получении списка курсов' });
+		next({ error, message: 'Ошибка при получении курсов' });
 	}
 };
 
-export const getCourseById = async (req: Request, res: Response) => {
+export const getCourseById = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const id = req.params.id;
 
@@ -55,17 +54,16 @@ export const getCourseById = async (req: Request, res: Response) => {
 			return;
 		}
 
-		res.json(course);
+		res.json({ message: 'Курс получен', course });
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при поиске курса' });
+		next({ error, message: 'Ошибка при получении курса' });
 	}
 };
 
-export const createCourse = async (req: Request, res: Response) => {
+export const createCourse = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		if (!req.body.image) {
-			res.status(400).json({ message: 'Пожалуйста, загрузите изображение' });
+			res.status(400).json({ message: 'Изображение не найдено' });
 			return;
 		}
 
@@ -92,8 +90,6 @@ export const createCourse = async (req: Request, res: Response) => {
 			course: newCourse,
 		});
 	} catch (error) {
-		console.error(error);
-
 		if (req.body.image) {
 			try {
 				await fs.unlinkSync(storageDirectory + req.body.image);
@@ -102,41 +98,45 @@ export const createCourse = async (req: Request, res: Response) => {
 			}
 		}
 
-		res.status(500).json({ message: 'Ошибка при создании курса' });
+		next({ error, message: 'Ошибка при создании курса' });
 	}
 };
 
-export const deleteCourse = async (req: Request, res: Response) => {
+export const deleteCourse = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const id = req.params.id;
 
 		const course = await Course.findById(id);
+
 		if (!course) {
 			res.status(404).json({ message: 'Курс не найден' });
 			return;
 		}
 
+		if (course.image) {
+			try {
+				await fs.unlinkSync(storageDirectory + course.image);
+			} catch (unlinkError) {
+				console.error('Ошибка при удалении изображении курса:', unlinkError);
+			}
+		}
+
 		await Course.findByIdAndDelete(id);
-		res.status(200).json({ message: 'Курс успешно удален' });
+
+		res.status(200).json({ message: 'Курс успешно удален', course });
 	} catch (error) {
-		res.status(500).json({ message: error });
+		next({ error, message: 'Ошибка при удалении курса' });
 	}
 };
 
-export const updateCourse = async (req: Request, res: Response) => {
+export const updateCourse = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const id = req.params.id;
 
 		const { title, description, price, image, category, level, published, author, tags } =
 			req.body;
 
-		const course = await Course.findById(id);
-		if (!course) {
-			res.status(404).json({ message: 'Курс не найден' });
-			return;
-		}
-
-		await Course.findByIdAndUpdate(id, {
+		const newCourse = {
 			title,
 			slug: slugify(title),
 			description,
@@ -147,9 +147,20 @@ export const updateCourse = async (req: Request, res: Response) => {
 			published,
 			author,
 			tags,
+		};
+
+		const course = await Course.findByIdAndUpdate(id, newCourse, {
+			new: true,
+			runValidators: true,
 		});
-		res.status(200).json({ message: 'Курс успешно обновлен' });
+
+		if (!course) {
+			res.status(404).json({ message: 'Курс не найден' });
+			return;
+		}
+
+		res.status(200).json({ message: 'Курс успешно обновлен', course });
 	} catch (error) {
-		res.status(500).json({ message: error });
+		next({ error, message: 'Ошибка при обновлении курса' });
 	}
 };

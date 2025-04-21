@@ -1,10 +1,10 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { generateToken } from '../services/authService';
 import User from '../models/User';
 import bcrypt from 'bcrypt';
 import { teacher, student } from '../utils/roles';
 
-export const registerStudent = async (req: Request, res: Response) => {
+export const registerStudent = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { name, lastname, email, password } = req.body;
 
@@ -31,12 +31,11 @@ export const registerStudent = async (req: Request, res: Response) => {
 			token: token,
 		});
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при регистрации' });
+		next({ error, message: 'Ошибка при регистрации' });
 	}
 };
 
-export const registerTeacher = async (req: Request, res: Response) => {
+export const registerTeacher = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { name, lastname, email, password } = req.body;
 
@@ -63,12 +62,11 @@ export const registerTeacher = async (req: Request, res: Response) => {
 			token: token,
 		});
 	} catch (error) {
-		console.error(error);
-		res.status(500).json({ message: 'Ошибка при регистрации' });
+		next({ error, message: 'Ошибка при регистрации' });
 	}
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { email, password } = req.body;
 		const user = await User.findOne({ email });
@@ -87,8 +85,8 @@ export const login = async (req: Request, res: Response) => {
 
 		const token = generateToken(user._id);
 
-		res.status(200).json({ token });
+		res.status(200).json({ message: 'Логин успешен', token });
 	} catch (error) {
-		res.status(400).json({ error });
+		next({ error, message: 'Ошибка при логине' });
 	}
 };
