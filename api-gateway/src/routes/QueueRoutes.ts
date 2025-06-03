@@ -2,13 +2,13 @@ import express, { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { sendMessageToQueue } from '../services/sendMessageToQueue';
 import { setStatusRequest } from '../services/setStatusRequest';
-import config from '../utils/config';
 
-const enrollmentRoute = express.Router();
+export default function QueueRoutes(pathService: string, serviceQueue: string){
+    const commentRoute = express.Router();
 
-enrollmentRoute.all('/enrollment*', async (req: Request, res: Response) => {
+    commentRoute.all(`/${pathService}*`, async (req: Request, res: Response) => {
 	const requestId = uuidv4();
-	const path = req.originalUrl.replace('/api/enrollment', '');
+	const path = req.originalUrl.replace(`/api/${pathService}`, '');
 	const method = req.method.toLowerCase();
 
 	try {
@@ -29,16 +29,19 @@ enrollmentRoute.all('/enrollment*', async (req: Request, res: Response) => {
 			},
 		};
 
-		await sendMessageToQueue(config.enrollmentServiceQueue, message);
+		await sendMessageToQueue(serviceQueue, message);
 
 		res.status(200).json({
 			message: 'Запрос принят.',
 			requestId,
 		});
-	} catch (error) {
-		console.error('Ошибка маршрутизации для enrollment-service:', error);
-		res.status(500).json({ error: 'Ошибка на сервере' });
-	}
-});
+        } catch (error) {
+            console.error('Ошибка маршрутизации для comments-service:', error);
+            res.status(500).json({ error: 'Ошибка на сервере' });
+        }
+    });
 
-export default enrollmentRoute;
+    return commentRoute;
+};
+
+

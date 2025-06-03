@@ -12,12 +12,10 @@ export const getCourses = async (req: Request, res: Response, next: NextFunction
 
 		const filter: FilterQuery<ICourse> = {};
 
-		//поиск по названию
 		if (search) {
 			filter.title = { $regex: search, $options: 'i' };
 		}
 
-		//фильтрация
 		if (category) {
 			filter.category = category;
 		}
@@ -26,7 +24,6 @@ export const getCourses = async (req: Request, res: Response, next: NextFunction
 			filter.level = level;
 		}
 
-		//пагинация
 		const pageNumber = parseInt(page || '1', 10);
 		const limitNumber = parseInt(limit || '10', 10);
 		const skip = (pageNumber - 1) * limitNumber;

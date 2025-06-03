@@ -1,12 +1,7 @@
 import express from 'express';
-import config from './utils/config';
-import userRoute from './routes/userRoutes';
 import statusRoute from './routes/statusRoutes';
-import coursesRoute from './routes/courseRoutes';
-import tagsRoute from './routes/tagsRoutes';
-import lessonRoute from './routes/lessonRoutes';
-import commentRoute from './routes/commentRoutes';
-import enrollmentRoute from './routes/enrollmentRoutes';
+import QueueRoutes from './routes/QueueRoutes';
+import config from './utils/config';
 
 const app = express();
 const port = config.port;
@@ -14,18 +9,20 @@ const port = config.port;
 app.use(express.json());
 
 const routes = [
-	userRoute,
-	statusRoute,
-	coursesRoute,
-	tagsRoute,
-	lessonRoute,
-	commentRoute,
-	enrollmentRoute,
+  { path: 'users', queue: config.userServiceQueue },
+  { path: 'courses', queue: config.courseServiceQueue },
+  { path: 'tags', queue: config.tagServiceQueue },
+  { path: 'lessons', queue: config.lessonServiceQueue },
+  { path: 'comments', queue: config.commentServiceQueue },
+  { path: 'enrollment', queue: config.enrollmentServiceQueue },
 ];
 
 routes.forEach((route) => {
-	app.use(`/${config.apiVer}`, route);
+	const routeUnit = QueueRoutes(route.path, route.queue)
+	app.use(`/${config.apiVer}`, routeUnit);
 });
+
+app.use(`/${config.apiVer}`, statusRoute);
 
 app.listen(port, () => {
 	console.log(`API Gateway прослушивает порт: ${port}`);
