@@ -5,11 +5,8 @@ export async function setStatusRequest(requestId: string, data: unknown, status:
     try {
         const statusServiceUrl = config.statusServiceUrl;
 
-        await axios.post(`${statusServiceUrl}/${requestId}`, {
-            status,
-      data,
-            message,
-        });
+        await axios.post(`${statusServiceUrl}/${requestId}`, { status, data, message });
+        
         return true;
     } catch (error) {
         console.error('Ошибка при обновлении сервиса статусов:', error);

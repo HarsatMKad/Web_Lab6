@@ -1,12 +1,13 @@
 import express, { Request, Response } from 'express';
 import axios from 'axios';
+import config from '../utils/config';
 
 const statusRoute = express.Router();
 
 statusRoute.get('/status/:requestId', async (req: Request, res: Response) => {
 	try {
 		const { requestId } = req.params;
-		const statusResult = await axios.get(`http://status-service:3003/api/status/${requestId}`, {
+		const statusResult = await axios.get(`${config.statusServiceUrl}/${requestId}`, {
 			validateStatus: function (status) {
 				return status === 404 || (status >= 200 && status < 300);
 			},
